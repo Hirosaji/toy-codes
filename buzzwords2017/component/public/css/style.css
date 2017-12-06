@@ -1,0 +1,71 @@
+/********** Line Element **********/
+.line {
+	fill: none;
+	stroke: steelblue;
+	stroke-width: 2px;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.hover-line {
+  stroke: #B74779;
+  stroke-width: 2px;
+  stroke-dasharray: 3,3;
+}
+
+
+/********** Checkbox **********/
+#wrapper {
+	width: 900px;
+	height: 300px;
+	stroke: black;
+	stroke-width: 1px;
+	margin-left: 40px;
+}
+label {
+	border: 1px solid #999;
+	border-radius: 5px;
+	padding: 5px;
+	cursor: pointer;
+	margin: 0 2px;
+	line-height: 1.94em;
+}
+label:hover {
+	background: #999;
+}
+input[type=checkbox]:checked ~ path{
+	stroke-opacity: 1;
+}
+#word1 { stroke: #1abc9c; color: #1abc9c; opacity: 1; }
+#word2 { stroke: #16a085; color: #16a085; opacity: 1; }
+#word3 { stroke: #f1c40f; color: #f1c40f; opacity: 1; }
+#word4 { stroke: #f39c12; color: #f39c12; opacity: 1; }
+#word5 { stroke: #2ecc71; color: #2ecc71; opacity: 1; }
+#word6 { stroke: #27ae60; color: #27ae60; opacity: 1; }
+#word7 { stroke: #e67e22; color: #e67e22; opacity: 1; }
+#word8 { stroke: #d35400; color: #d35400; opacity: 1; }
+#word9 { stroke: #3498db; color: #3498db; opacity: 1; }
+#word10 { stroke: #2980b9; color: #2980b9; opacity: 1; }
+#word11 { stroke: #e74c3c; color: #e74c3c; opacity: 1; }
+#word12 { stroke: #c0392b; color: #c0392b; opacity: 1; }
+#word13 { stroke: #9b59b6; color: #9b59b6; opacity: 1; }
+#word14 { stroke: #8e44ad; color: #8e44ad; opacity: 1; }
+#word15 { stroke: #bdc3c7; color: #bdc3c7; opacity: 1; }
+#word16 { stroke: #34495e; color: #34495e; opacity: 1; }
+#word17 { stroke: #2c3e50; color: #2c3e50; opacity: 1; }
+#word18 { stroke: #95a5a6; color: #95a5a6; opacity: 1; }
+#word19 { stroke: #7f8c8d; color: #7f8c8d; opacity: 1; }
+#word20 { stroke: #800000; color: #800000; opacity: 1; }
+#word21 { stroke: #4B0082; color: #4B0082; opacity: 1; }
+#word22 { stroke: #B8860B; color: #B8860B; opacity: 1; }
+#word23 { stroke: #2F4F4F; color: #2F4F4F; opacity: 1; }
+#word24 { stroke: #191970; color: #191970; opacity: 1; }
+#word25 { stroke: #BC8F8F; color: #BC8F8F; opacity: 1; }
+#word26 { stroke: #FF69B4; color: #FF69B4; opacity: 1; }
+#word27 { stroke: #ADFF2F; color: #ADFF2F; opacity: 1; }
+#word28 { stroke: #48D1CC; color: #48D1CC; opacity: 1; }
+#word29 { stroke: #FFA07A; color: #FFA07A; opacity: 1; }
+#word30 { stroke: #FF0000; color: #FF0000; opacity: 1; }
