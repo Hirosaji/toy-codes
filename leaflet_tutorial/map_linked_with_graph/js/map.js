@@ -1,0 +1,147 @@
+!(function(){
+	"use strict";
+
+	// csvの読み込み
+	d3.queue()
+	  .defer(d3.json, '../data/allGuests.json')
+	  .defer(d3.json, '../data/foreignGuests.json')
+	  .defer(d3.json, '../data/prefecturesGeoJSON.geojson')
+	  .await(function(error, allGuestsData, foreignGuestsData, geojson) {
+	  	if (error) throw error;
+
+	  	var initLatLng = [35.8, 136.5];
+		var map = L.map('mapid', {maxZoom: 10, minZoom: 5}).setView(initLatLng, 5);
+
+        // 地図の表示範囲を制限
+        var cityBounds = [[50, 115], [20, 160]];
+        var cityRect = L.rectangle(cityBounds, {fillOpacity: 0, weight: 0});
+        cityRect.addTo(map);
+        map.setMaxBounds(cityBounds);
+
+		// 各データをマージしたgeoJSON
+		var newGeoJSON = geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson);
+		console.log(newGeoJSON)
+
+		// 地理データの描画
+		L.geoJson(newGeoJSON, {
+				style: style,
+				onEachFeature: onEachFeature
+			}).addTo(map);
+
+		// 選択エリアのステータスを表示
+		var info = L.control();
+
+		info.onAdd = function(map) {
+			this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+			this.update();
+			return this._div;
+		};
+
+		info.update = function(props) {
+			if(props){
+				this._div.innerHTML = '<h4>宿泊旅行統計</h4>' + '<b>' + props.prefecturesName;
+			} else {
+				this._div.innerHTML = '<h4>宿泊旅行統計</h4>Hover over a land';
+			};
+		};
+
+		info.addTo(map);
+
+		// geoJSONと各データをマージする関数
+		function geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson){
+
+			margeData(allGuestsData, "allGuestsData", geojson);
+			margeData(foreignGuestsData, "foreignGuestsData", geojson);
+
+			function margeData(guestsData, dataName, geojson){
+
+				var prefecturesIndex = { "Tottoei":"鳥取県", "Nara":"奈良県", "Shiga":"滋賀県", "Gifu":"岐阜県", "Toyama":"富山県", "Kyoto":"京都府", "Fukui":"福井県", "Yamanashi":"山梨県", "Saitama":"埼玉県", "Gunma":"群馬県", "Tochigi":"栃木県", "Shizuoka":"静岡県", "Nagano":"長野県", "Ibaragi":"茨城県", "Chiba":"千葉県", "Fukushima":"福島県", "Yamagata":"山形県", "Akita":"秋田県", "Iwate":"岩手県", "Aomori":"青森県", "Yamaguchi":"山口県", "Ehime":"愛媛県", "Shimane":"島根県", "Hiroshima":"広島県", "Okayama":"岡山県", "Hyogo":"兵庫県", "Kagawa":"香川県", "Kochi":"高知県", "Tokushima":"徳島県", "Osaka":"大阪県", "Wakayama":"和歌山県", "Aichi":"愛知県", "Mie":"三重県", "Ishikawa":"石川県", "Tokyo":"東京都", "Kanagawa":"神奈川県", "Nigata":"新潟県", "Miyagi":"宮城県", "Fukuoka":"福岡県", "Oita":"大分県", "Saga":"佐賀県", "Kumamoto":"熊本県", "Kagoshima":"鹿児島県", "Miyazaki":"宮城県", "Nagasaki":"長崎県", "Okinawa":"沖縄県", "Hokkaido":"北海道" };
+				Object.keys(guestsData).forEach(function(prefecturesInfo){
+					for(var i=0; i<geojson.features.length; i++){
+						var prefecturesJap = prefecturesIndex[geojson.features[i].properties.ObjName_1];
+						if(prefecturesInfo == prefecturesJap){
+							geojson.features[i].properties[dataName] = guestsData[prefecturesJap];
+							geojson.features[i].properties.prefecturesName = prefecturesInfo;
+						}
+					}
+				});
+
+			};
+			return geojson;
+
+		}
+
+		// 色の塗り分け処理
+		function getColor(d) {
+			return d > 8 ? '#800026' :
+				   d > 6  ? '#BD0026' :
+				   d > 4  ? '#E31A1C' :
+				   d > 2  ? '#FC4E2A' :
+				   d > 0   ? '#FD8D3C' :
+				   d > -2   ? '#FEB24C' :
+				   d > -4   ? '#FED976' :
+							  'gray';
+		};
+
+		function style(feature) {
+			return {
+				fillColor: getColor(feature.properties.allGuests),
+				weight: 2,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.7
+			};
+		}
+
+		// ハイライト表示関数(mouseoverイベント)
+		function highlightFeature(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 5,
+				color: '#666',
+				dashArray: '',
+				fillOpacity: 0.7
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+		}
+
+		// ハイライト表示リセット関数(mouseoutイベント)
+		function resetHighlight(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight: 2,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 0.7
+			});
+			//var geojson = L.geoJson(geojson);
+			//geojson.resetStyle(e.target);
+
+			info.update();
+		}
+
+		// ズーム関数(clickイベント)
+		function zoomToFeature(e) {
+			backMap.fitBounds(e.target.getBounds());
+		}
+
+		// mouseoverイベント管理関数
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click: zoomToFeature
+			});
+		}
+
+	  })
+
+}());
