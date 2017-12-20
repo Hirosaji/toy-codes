@@ -22,6 +22,16 @@
 		var newGeoJSON = geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson);
 		console.log(newGeoJSON)
 
+		// 折れ線グラフで使うデータセット
+		var graphDataset = prepareLineGraphData(newGeoJSON);
+		console.log(graphDataset);
+
+		// 折れ線グラフを描画
+		var svg = d3.select("#graphid")
+		/*** graphDataset を使って折れ線グラフを描画 ***/
+		/*** 参照1: https://bl.ocks.org/mbostock/3884955 ***/
+		/*** 参照2: https://bl.ocks.org/ProQuestionAsker/295b81e1d59de386ce332a6401b98cc8 ***/
+
 		// 地理データの描画
 		L.geoJson(newGeoJSON, {
 				style: style,
@@ -39,7 +49,14 @@
 
 		info.update = function(props) {
 			if(props){
-				this._div.innerHTML = '<h4>宿泊旅行統計</h4>' + '<b>' + props.prefecturesName;
+				var allGuestsNum = props.allGuestsData["2017"]["9"];
+				var foreignGuestsNum = props.foreignGuestsData["2017"]["9"];
+				var foreignRatio = Number(foreignGuestsNum.replace(/,/g, ''))/Number(allGuestsNum.replace(/,/g, ''));
+
+				this._div.innerHTML = '<h4>宿泊旅行統計</h4>' + '<b>' + props.prefecturesName
+				+ '</b><br />宿泊客総数: ' + allGuestsNum + " 人"
+				+ '</b><br />外国人宿泊客数: ' + foreignGuestsNum + " 人"
+				+ '</b><br />外国人宿泊客の割合: ' + Math.floor(foreignRatio*1000)/10 + "%";
 			} else {
 				this._div.innerHTML = '<h4>宿泊旅行統計</h4>Hover over a land';
 			};
@@ -55,7 +72,7 @@
 
 			function margeData(guestsData, dataName, geojson){
 
-				var prefecturesIndex = { "Tottoei":"鳥取県", "Nara":"奈良県", "Shiga":"滋賀県", "Gifu":"岐阜県", "Toyama":"富山県", "Kyoto":"京都府", "Fukui":"福井県", "Yamanashi":"山梨県", "Saitama":"埼玉県", "Gunma":"群馬県", "Tochigi":"栃木県", "Shizuoka":"静岡県", "Nagano":"長野県", "Ibaragi":"茨城県", "Chiba":"千葉県", "Fukushima":"福島県", "Yamagata":"山形県", "Akita":"秋田県", "Iwate":"岩手県", "Aomori":"青森県", "Yamaguchi":"山口県", "Ehime":"愛媛県", "Shimane":"島根県", "Hiroshima":"広島県", "Okayama":"岡山県", "Hyogo":"兵庫県", "Kagawa":"香川県", "Kochi":"高知県", "Tokushima":"徳島県", "Osaka":"大阪県", "Wakayama":"和歌山県", "Aichi":"愛知県", "Mie":"三重県", "Ishikawa":"石川県", "Tokyo":"東京都", "Kanagawa":"神奈川県", "Nigata":"新潟県", "Miyagi":"宮城県", "Fukuoka":"福岡県", "Oita":"大分県", "Saga":"佐賀県", "Kumamoto":"熊本県", "Kagoshima":"鹿児島県", "Miyazaki":"宮城県", "Nagasaki":"長崎県", "Okinawa":"沖縄県", "Hokkaido":"北海道" };
+				var prefecturesIndex = { "Tottoei":"鳥取県", "Nara":"奈良県", "Shiga":"滋賀県", "Gifu":"岐阜県", "Toyama":"富山県", "Kyoto":"京都府", "Fukui":"福井県", "Yamanashi":"山梨県", "Saitama":"埼玉県", "Gunma":"群馬県", "Tochigi":"栃木県", "Shizuoka":"静岡県", "Nagano":"長野県", "Ibaragi":"茨城県", "Chiba":"千葉県", "Fukushima":"福島県", "Yamagata":"山形県", "Akita":"秋田県", "Iwate":"岩手県", "Aomori":"青森県", "Yamaguchi":"山口県", "Ehime":"愛媛県", "Shimane":"島根県", "Hiroshima":"広島県", "Okayama":"岡山県", "Hyogo":"兵庫県", "Kagawa":"香川県", "Kochi":"高知県", "Tokushima":"徳島県", "Osaka":"大阪府", "Wakayama":"和歌山県", "Aichi":"愛知県", "Mie":"三重県", "Ishikawa":"石川県", "Tokyo":"東京都", "Kanagawa":"神奈川県", "Nigata":"新潟県", "Miyagi":"宮城県", "Fukuoka":"福岡県", "Oita":"大分県", "Saga":"佐賀県", "Kumamoto":"熊本県", "Kagoshima":"鹿児島県", "Miyazaki":"宮城県", "Nagasaki":"長崎県", "Okinawa":"沖縄県", "Hokkaido":"北海道" };
 				Object.keys(guestsData).forEach(function(prefecturesInfo){
 					for(var i=0; i<geojson.features.length; i++){
 						var prefecturesJap = prefecturesIndex[geojson.features[i].properties.ObjName_1];
@@ -71,25 +88,57 @@
 
 		}
 
+		// 折れ線グラフで使うデータセットを作成する関数
+		function prepareLineGraphData(newGeoJSON){
+
+			var handlingData = newGeoJSON.features;
+			var outputDataset = [];
+
+			handlingData.forEach(function(areaData){
+				var thisAreaName = areaData.properties.prefecturesName;
+				var thisAreaData = areaData.properties.allGuestsData;
+				Object.keys(thisAreaData).forEach(function(year) {
+					var thisYearData = thisAreaData[year];
+					Object.keys(thisYearData).forEach(function(month){
+						var tempDist = {};
+						if(month.length==1){ var thisMonth = "0"+month } else { var thisMonth = month };
+						var thisDate = year + thisMonth;
+						var thisRatio = Math.floor( Number(areaData.properties.foreignGuestsData[year][month].replace(/,/g, '')) / Number(areaData.properties.allGuestsData[year][month].replace(/,/g, '')) * 1000)/10;
+						tempDist.date = thisDate;
+						tempDist.ratio = thisRatio;
+						tempDist.area = thisAreaName;
+						outputDataset.push(tempDist);
+					})
+				})
+			})
+			return outputDataset;
+
+		}
+
 		// 色の塗り分け処理
 		function getColor(d) {
-			return d > 8 ? '#800026' :
-				   d > 6  ? '#BD0026' :
-				   d > 4  ? '#E31A1C' :
-				   d > 2  ? '#FC4E2A' :
-				   d > 0   ? '#FD8D3C' :
-				   d > -2   ? '#FEB24C' :
-				   d > -4   ? '#FED976' :
+			return d > 22.5 ? '#67000d' :
+				   d > 20  ? '#a50f15' :
+				   d > 17.5  ? '#cb181d' :
+				   d > 15  ? '#ef3b2c' :
+				   d > 12.5  ? '#fb6a4a' :
+				   d > 10  ? '#fc9272' :
+				   d > 7.5  ? '#fcbba1' :
+				   d > 5  ? '#fee0d2' :
+				   d > 2.5  ? '#fff5f0' :
+				   d > 0  ? '#ffffff' :
 							  'gray';
 		};
 
 		function style(feature) {
+			var allGuestsNum = feature.properties.allGuestsData["2017"]["9"];
+			var foreignGuestsNum = feature.properties.foreignGuestsData["2017"]["9"];
+			var foreignRatio = Number(foreignGuestsNum.replace(/,/g, ''))/Number(allGuestsNum.replace(/,/g, ''))
 			return {
-				fillColor: getColor(feature.properties.allGuests),
+				fillColor: getColor(Math.floor(foreignRatio*1000)/10),
 				weight: 2,
 				opacity: 1,
 				color: 'white',
-				dashArray: '3',
 				fillOpacity: 0.7
 			};
 		}
@@ -101,7 +150,6 @@
 			layer.setStyle({
 				weight: 5,
 				color: '#666',
-				dashArray: '',
 				fillOpacity: 0.7
 			});
 
@@ -119,7 +167,6 @@
 			layer.setStyle({
 				weight: 2,
 				color: 'white',
-				dashArray: '3',
 				fillOpacity: 0.7
 			});
 			//var geojson = L.geoJson(geojson);
@@ -130,7 +177,7 @@
 
 		// ズーム関数(clickイベント)
 		function zoomToFeature(e) {
-			backMap.fitBounds(e.target.getBounds());
+			map.fitBounds(e.target.getBounds());
 		}
 
 		// mouseoverイベント管理関数
