@@ -1,6 +1,15 @@
 !(function(){
 	"use strict";
 
+	var initLatLng = [35.8, 136.5];
+	var map = L.map('mapid', {maxZoom: 10, minZoom: 5}).setView(initLatLng, 5);
+
+	// 地図の表示範囲を制限
+	var cityBounds = [[50, 115], [20, 160]];
+	var cityRect = L.rectangle(cityBounds, {fillOpacity: 0, weight: 0});
+	cityRect.addTo(map);
+	map.setMaxBounds(cityBounds);
+
 	// csvの読み込み
 	d3.queue()
 	  .defer(d3.json, '../data/allGuests.json')
@@ -8,15 +17,6 @@
 	  .defer(d3.json, '../data/prefecturesGeoJSON.geojson')
 	  .await(function(error, allGuestsData, foreignGuestsData, geojson) {
 	  	if (error) throw error;
-
-	  	var initLatLng = [35.8, 136.5];
-		var map = L.map('mapid', {maxZoom: 10, minZoom: 5}).setView(initLatLng, 5);
-
-        // 地図の表示範囲を制限
-        var cityBounds = [[50, 115], [20, 160]];
-        var cityRect = L.rectangle(cityBounds, {fillOpacity: 0, weight: 0});
-        cityRect.addTo(map);
-        map.setMaxBounds(cityBounds);
 
 		// 各データをマージしたgeoJSON
 		var newGeoJSON = geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson);
