@@ -20,14 +20,14 @@
 
 		// 各データをマージしたgeoJSON
 		var newGeoJSON = geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson);
-		console.log(newGeoJSON)
+		console.log(newGeoJSON);
 
 		// 折れ線グラフで使うデータセット
 		var graphDataset = prepareLineGraphData(newGeoJSON);
 		console.log(graphDataset);
 
 		// 折れ線グラフを描画
-		var svg = d3.select("#graphid")
+		var svg = d3.select("#graphid");
 		/*** graphDataset を使って折れ線グラフを描画 ***/
 		/*** 参照1: https://bl.ocks.org/mbostock/3884955 ***/
 		/*** 参照2: https://bl.ocks.org/ProQuestionAsker/295b81e1d59de386ce332a6401b98cc8 ***/
@@ -59,7 +59,7 @@
 				+ '</b><br />外国人宿泊客の割合: ' + Math.floor(foreignRatio*1000)/10 + "%";
 			} else {
 				this._div.innerHTML = '<h4>宿泊旅行統計</h4>Hover over a land';
-			};
+			}
 		};
 
 		info.addTo(map);
@@ -83,7 +83,7 @@
 					}
 				});
 
-			};
+			}
 			return geojson;
 
 		}
@@ -101,16 +101,16 @@
 					var thisYearData = thisAreaData[year];
 					Object.keys(thisYearData).forEach(function(month){
 						var tempDist = {};
-						if(month.length==1){ var thisMonth = "0"+month } else { var thisMonth = month };
+						if(month.length==1){ var thisMonth = "0"+month } else { var thisMonth = month; }
 						var thisDate = year + thisMonth;
 						var thisRatio = Math.floor( Number(areaData.properties.foreignGuestsData[year][month].replace(/,/g, '')) / Number(areaData.properties.allGuestsData[year][month].replace(/,/g, '')) * 1000)/10;
 						tempDist.date = thisDate;
 						tempDist.ratio = thisRatio;
 						tempDist.area = thisAreaName;
 						outputDataset.push(tempDist);
-					})
-				})
-			})
+					});
+				});
+			});
 			return outputDataset;
 
 		}
@@ -128,12 +128,12 @@
 				   d > 2.5  ? '#fff5f0' :
 				   d > 0  ? '#ffffff' :
 							  'gray';
-		};
+		}
 
 		function style(feature) {
 			var allGuestsNum = feature.properties.allGuestsData["2017"]["9"];
 			var foreignGuestsNum = feature.properties.foreignGuestsData["2017"]["9"];
-			var foreignRatio = Number(foreignGuestsNum.replace(/,/g, ''))/Number(allGuestsNum.replace(/,/g, ''))
+			var foreignRatio = Number(foreignGuestsNum.replace(/,/g, ''))/Number(allGuestsNum.replace(/,/g, ''));
 			return {
 				fillColor: getColor(Math.floor(foreignRatio*1000)/10),
 				weight: 2,
@@ -189,6 +189,6 @@
 			});
 		}
 
-	  })
+	  });
 
 }());
