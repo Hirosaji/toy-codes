@@ -20,17 +20,97 @@
 
 		// 各データをマージしたgeoJSON
 		var newGeoJSON = geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson);
-		console.log(newGeoJSON);
+		// console.log(newGeoJSON);
 
 		// 折れ線グラフで使うデータセット
 		var graphDataset = prepareLineGraphData(newGeoJSON);
-		console.log(graphDataset);
+		// console.log(graphDataset);
 
-		// 折れ線グラフを描画
-		var svg = d3.select("#graphid");
-		/*** graphDataset を使って折れ線グラフを描画 ***/
-		/*** 参照1: https://bl.ocks.org/mbostock/3884955 ***/
-		/*** 参照2: https://bl.ocks.org/ProQuestionAsker/295b81e1d59de386ce332a6401b98cc8 ***/
+		var graphDataset = graphDataset.filter(function(d){ return (d.area==="千葉県"); });	//とりあえず千葉だけ適応
+
+		/***************************/
+		/***** 折れ線グラフを描画 *****/
+		/***************************/
+
+		// 描画領域やマージンを設定
+		var margin = {top: 20, right: 80, bottom: 30, left: 50},
+			w = 450,
+			h = 300,
+			width = w - margin.left - margin.right,
+			height = h - margin.top - margin.bottom;
+		var svg = d3.select("#graphid").append("svg").attr("width", w).attr("height", h),
+			g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		// 日付のパース
+		var parseTime = d3.timeParse("%Y%m");
+
+		// データを整形
+		graphDataset.map(function(d){
+			d.date = parseTime(d.date);
+			d.ratio = +d.ratio;
+		});
+		// console.log(graphDataset);
+
+		// x,y軸スケールのrangeの設定
+		var x = d3.scaleTime().range([0, width]),
+		    y = d3.scaleLinear().range([height, 0]),
+		    z = d3.scaleOrdinal(d3.schemeCategory10);
+
+		// 折れ線情報の設定
+		var line = d3.line()
+					 .curve(d3.curveBasis)
+					 .x(function(d) { return x(d.date); })
+					 .y(function(d) { return y(d.ratio); });
+
+		// x,y軸スケールのdomainを設定
+		x.domain(d3.extent(graphDataset, function(d) { return d.date; }));
+		y.domain([0, Math.max.apply(null, graphDataset.map( function(d){ return d.ratio; } ))]);
+		z.domain(graphDataset.map(function(c) { return c.area; }));
+
+		// x,y軸の描画
+		g.append("g")
+			.attr("class", "axis axis--x")
+			.attr("transform", "translate(0," + height + ")")
+			.call(d3.axisBottom(x));
+		g.append("g")
+			.attr("class", "axis axis--y")
+			.call(d3.axisLeft(y))
+			.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("y", 6)
+			.attr("dy", "0.71em")
+			.attr("fill", "#000")
+			.text("外国人宿泊客の割合, %");
+
+		var perPrefectureData = getPerPrefectureData(graphDataset);
+
+		// console.log(perPrefectureData);
+
+		perPrefectureData.forEach(function(prefectureData){
+
+			var prefecture = g.selectAll(".prefecture")
+				.data(perPrefectureData)
+				.enter().append("g")
+				.attr("class", "prefecture");
+
+			prefecture.append("path")
+				.attr("class", "line")
+				.attr("d", function(d) { return line(d); })
+				.style("stroke", function(d) { return z(d.area); });
+
+			prefecture.append("text")
+				.datum(function(d) { return {area: d[0].area, value: d[d.length-1]}; })
+				.attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.ratio) + ")"; })
+				.attr("x", 3)
+				.attr("dy", "0.35em")
+				.style("font", "10px sans-serif")
+				.text(function(d) { return d.area; });
+
+		});
+
+		/***************************/
+		/***** 折れ線グラフここまで ****/
+		/***************************/
 
 		// 地理データの描画
 		L.geoJson(newGeoJSON, {
@@ -112,6 +192,28 @@
 				});
 			});
 			return outputDataset;
+
+		}
+
+		// 都道府県ごとに切り分けたデータを返す
+		function getPerPrefectureData(data){
+
+			var prefecturesName = [];
+			data.forEach(function(d){
+				if(prefecturesName.indexOf(d.area) === -1){
+					prefecturesName.push(d.area);
+				}
+			});
+
+			var outputList = [];
+			prefecturesName.forEach(function(prefectureName){
+				var prefectureDataList = data.filter(function(d){
+					return (d.area === prefectureName);
+				});
+				outputList.push(prefectureDataList);
+			});
+
+			return outputList;
 
 		}
 

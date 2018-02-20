@@ -1,4 +1,6 @@
-#mapid { height: 700px; }
+#mapid {
+	height: 700px;
+}
 
 /********** 属性情報 **********/
 .info {
@@ -29,4 +31,15 @@
 }
 .button:hover {
 	letter-spacing: 3px;
+}
+
+/********** D3.js **********/
+#graphid {
+	position: absolute;
+	margin: -680px 0 0 50px;
+}
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
 }
