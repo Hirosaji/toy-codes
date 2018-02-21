@@ -18,6 +18,14 @@
 	  .await(function(error, allGuestsData, foreignGuestsData, geojson) {
 	  	if (error) throw error;
 
+	  	// 都道府県のローマ字を漢字に直すための辞書
+	  	var prefecturesIndex = { "Tottoei":"鳥取県", "Nara":"奈良県", "Shiga":"滋賀県", "Gifu":"岐阜県", "Toyama":"富山県", "Kyoto":"京都府", "Fukui":"福井県", "Yamanashi":"山梨県", "Saitama":"埼玉県", "Gunma":"群馬県", "Tochigi":"栃木県", "Shizuoka":"静岡県", "Nagano":"長野県", "Ibaragi":"茨城県", "Chiba":"千葉県", "Fukushima":"福島県", "Yamagata":"山形県", "Akita":"秋田県", "Iwate":"岩手県", "Aomori":"青森県", "Yamaguchi":"山口県", "Ehime":"愛媛県", "Shimane":"島根県", "Hiroshima":"広島県", "Okayama":"岡山県", "Hyogo":"兵庫県", "Kagawa":"香川県", "Kochi":"高知県", "Tokushima":"徳島県", "Osaka":"大阪府", "Wakayama":"和歌山県", "Aichi":"愛知県", "Mie":"三重県", "Ishikawa":"石川県", "Tokyo":"東京都", "Kanagawa":"神奈川県", "Nigata":"新潟県", "Miyagi":"宮城県", "Fukuoka":"福岡県", "Oita":"大分県", "Saga":"佐賀県", "Kumamoto":"熊本県", "Kagoshima":"鹿児島県", "Miyazaki":"宮城県", "Nagasaki":"長崎県", "Okinawa":"沖縄県", "Hokkaido":"北海道" };
+	  	var InvPrefecturesIndex = inverseObject(prefecturesIndex);
+
+	  	// 折れ線グラフにおける折れ線のstrokeとテキストのopacityを管理する辞書
+	  	var opacityDist = {};
+	  	for(var key in prefecturesIndex){ opacityDist[key] = 0; }
+
 		// 各データをマージしたgeoJSON
 		var newGeoJSON = geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson);
 		// console.log(newGeoJSON);
@@ -25,92 +33,7 @@
 		// 折れ線グラフで使うデータセット
 		var graphDataset = prepareLineGraphData(newGeoJSON);
 		// console.log(graphDataset);
-
-		var graphDataset = graphDataset.filter(function(d){ return (d.area==="千葉県"); });	//とりあえず千葉だけ適応
-
-		/***************************/
-		/***** 折れ線グラフを描画 *****/
-		/***************************/
-
-		// 描画領域やマージンを設定
-		var margin = {top: 20, right: 80, bottom: 30, left: 50},
-			w = 450,
-			h = 300,
-			width = w - margin.left - margin.right,
-			height = h - margin.top - margin.bottom;
-		var svg = d3.select("#graphid").append("svg").attr("width", w).attr("height", h),
-			g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-		// 日付のパース
-		var parseTime = d3.timeParse("%Y%m");
-
-		// データを整形
-		graphDataset.map(function(d){
-			d.date = parseTime(d.date);
-			d.ratio = +d.ratio;
-		});
-		// console.log(graphDataset);
-
-		// x,y軸スケールのrangeの設定
-		var x = d3.scaleTime().range([0, width]),
-		    y = d3.scaleLinear().range([height, 0]),
-		    z = d3.scaleOrdinal(d3.schemeCategory10);
-
-		// 折れ線情報の設定
-		var line = d3.line()
-					 .curve(d3.curveBasis)
-					 .x(function(d) { return x(d.date); })
-					 .y(function(d) { return y(d.ratio); });
-
-		// x,y軸スケールのdomainを設定
-		x.domain(d3.extent(graphDataset, function(d) { return d.date; }));
-		y.domain([0, Math.max.apply(null, graphDataset.map( function(d){ return d.ratio; } ))]);
-		z.domain(graphDataset.map(function(c) { return c.area; }));
-
-		// x,y軸の描画
-		g.append("g")
-			.attr("class", "axis axis--x")
-			.attr("transform", "translate(0," + height + ")")
-			.call(d3.axisBottom(x));
-		g.append("g")
-			.attr("class", "axis axis--y")
-			.call(d3.axisLeft(y))
-			.append("text")
-			.attr("transform", "rotate(-90)")
-			.attr("y", 6)
-			.attr("dy", "0.71em")
-			.attr("fill", "#000")
-			.text("外国人宿泊客の割合, %");
-
-		var perPrefectureData = getPerPrefectureData(graphDataset);
-
-		// console.log(perPrefectureData);
-
-		perPrefectureData.forEach(function(prefectureData){
-
-			var prefecture = g.selectAll(".prefecture")
-				.data(perPrefectureData)
-				.enter().append("g")
-				.attr("class", "prefecture");
-
-			prefecture.append("path")
-				.attr("class", "line")
-				.attr("d", function(d) { return line(d); })
-				.style("stroke", function(d) { return z(d.area); });
-
-			prefecture.append("text")
-				.datum(function(d) { return {area: d[0].area, value: d[d.length-1]}; })
-				.attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.ratio) + ")"; })
-				.attr("x", 3)
-				.attr("dy", "0.35em")
-				.style("font", "10px sans-serif")
-				.text(function(d) { return d.area; });
-
-		});
-
-		/***************************/
-		/***** 折れ線グラフここまで ****/
-		/***************************/
+		drawLineChart(graphDataset);
 
 		// 地理データの描画
 		L.geoJson(newGeoJSON, {
@@ -152,7 +75,6 @@
 
 			function margeData(guestsData, dataName, geojson){
 
-				var prefecturesIndex = { "Tottoei":"鳥取県", "Nara":"奈良県", "Shiga":"滋賀県", "Gifu":"岐阜県", "Toyama":"富山県", "Kyoto":"京都府", "Fukui":"福井県", "Yamanashi":"山梨県", "Saitama":"埼玉県", "Gunma":"群馬県", "Tochigi":"栃木県", "Shizuoka":"静岡県", "Nagano":"長野県", "Ibaragi":"茨城県", "Chiba":"千葉県", "Fukushima":"福島県", "Yamagata":"山形県", "Akita":"秋田県", "Iwate":"岩手県", "Aomori":"青森県", "Yamaguchi":"山口県", "Ehime":"愛媛県", "Shimane":"島根県", "Hiroshima":"広島県", "Okayama":"岡山県", "Hyogo":"兵庫県", "Kagawa":"香川県", "Kochi":"高知県", "Tokushima":"徳島県", "Osaka":"大阪府", "Wakayama":"和歌山県", "Aichi":"愛知県", "Mie":"三重県", "Ishikawa":"石川県", "Tokyo":"東京都", "Kanagawa":"神奈川県", "Nigata":"新潟県", "Miyagi":"宮城県", "Fukuoka":"福岡県", "Oita":"大分県", "Saga":"佐賀県", "Kumamoto":"熊本県", "Kagoshima":"鹿児島県", "Miyazaki":"宮城県", "Nagasaki":"長崎県", "Okinawa":"沖縄県", "Hokkaido":"北海道" };
 				Object.keys(guestsData).forEach(function(prefecturesInfo){
 					for(var i=0; i<geojson.features.length; i++){
 						var prefecturesJap = prefecturesIndex[geojson.features[i].properties.ObjName_1];
@@ -165,6 +87,95 @@
 
 			}
 			return geojson;
+
+		}
+
+		function drawLineChart(graphDataset){
+
+			// 描画領域やマージンを設定
+			var margin = {top: 20, right: 80, bottom: 30, left: 50},
+				w = 450,
+				h = 300,
+				width = w - margin.left - margin.right,
+				height = h - margin.top - margin.bottom;
+			var svg = d3.select("#graphid").append("svg").attr("width", w).attr("height", h),
+				g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			// 日付のパース
+			var parseTime = d3.timeParse("%Y%m");
+
+			// データを整形
+			graphDataset.map(function(d){
+				d.date = parseTime(d.date);
+				d.ratio = +d.ratio;
+			});
+			// console.log(graphDataset);
+
+			// x,y軸スケールのrangeの設定
+			var x = d3.scaleTime().range([0, width]),
+			    y = d3.scaleLinear().range([height, 0]),
+			    z = d3.scaleOrdinal(d3.schemeCategory10);
+
+			// 折れ線情報の設定
+			var line = d3.line()
+						 .curve(d3.curveBasis)
+						 .x(function(d) { return x(d.date); })
+						 .y(function(d) { return y(d.ratio); });
+
+			// x,y軸スケールのdomainを設定
+			x.domain(d3.extent(graphDataset, function(d) { return d.date; }));
+			y.domain([0, Math.max.apply(null, graphDataset.map( function(d){ return d.ratio; } ))]);
+
+			// x,y軸の描画
+			g.append("g")
+				.attr("class", "axis axis--x")
+				.attr("transform", "translate(0," + height + ")")
+				.call(d3.axisBottom(x));
+			g.append("g")
+				.attr("class", "axis axis--y")
+				.call(d3.axisLeft(y))
+				.append("text")
+				.attr("transform", "rotate(-90)")
+				.attr("y", 6)
+				.attr("dy", "0.71em")
+				.attr("fill", "#000")
+				.text("外国人宿泊客の割合, %");
+
+			var perPrefectureData = getPerPrefectureData(graphDataset);
+
+			perPrefectureData.forEach(function(prefectureData){
+
+				// 背景側の折れ線の描画
+				var backPrefecture = g.selectAll(".backline")
+					.data(perPrefectureData)
+					.enter().append("g")
+					.attr("class", "prefecture");
+
+				backPrefecture.append("path")
+					.attr("class", "backline")
+					.attr("d", function(d) { return line(d); });
+
+				// クリックイベントで表示する折れ線の描画
+				var prefecture = g.selectAll(".line")
+					.data(perPrefectureData)
+					.enter().append("g")
+					.attr("class", "prefecture");
+
+				prefecture.append("path")
+					.attr("class", function(d) { return "line line__" + InvPrefecturesIndex[d[0].area]; })
+					.attr("d", function(d) { return line(d); });
+
+				prefecture.append("text")
+					.attr("class", function(d) { return "text text__" + InvPrefecturesIndex[d[0].area]; })
+					.datum(function(d) { return {area: d[0].area, value: d[d.length-1]}; })
+					.style("opacity", 0)
+					.attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.ratio) + ")"; })
+					.attr("x", 3)
+					.attr("dy", "0.35em")
+					.style("font", "10px sans-serif")
+					.text(function(d) { return d.area; });
+
+			});
 
 		}
 
@@ -277,18 +288,34 @@
 			info.update();
 		}
 
-		// ズーム関数(clickイベント)
-		function zoomToFeature(e) {
-			map.fitBounds(e.target.getBounds());
+		// 折れ線追加関数(clickイベント)
+		function addLineOnChart(e) {
+			var clickdPrefecture = e.target.feature.properties.ObjName_1;
+			var newOpacity = (opacityDist[clickdPrefecture]!=0) ? 0 : 1;
+			d3.select(".line__"+clickdPrefecture).style("opacity", newOpacity);
+			d3.select(".text__"+clickdPrefecture).style("opacity", newOpacity);
+			opacityDist[clickdPrefecture] = newOpacity;
 		}
+
+		// // ズーム関数(旧clickイベント)
+		// function zoomToFeature(e) {
+		// 	map.fitBounds(e.target.getBounds());
+		// }
 
 		// mouseoverイベント管理関数
 		function onEachFeature(feature, layer) {
 			layer.on({
 				mouseover: highlightFeature,
 				mouseout: resetHighlight,
-				click: zoomToFeature
+				click: addLineOnChart
 			});
+		}
+
+		// 連想配列のkeyとvalueを反転させた連想配列を返す関数
+		function inverseObject (obj, keyIsNumber) {
+		  return Object.keys(obj).reduceRight(function (ret, k) {
+		    return (ret[obj[k]] = keyIsNumber ? parseInt(k, 10) : k, ret);
+		  }, {});
 		}
 
 	  });
