@@ -37,21 +37,23 @@
 #graphid {
 	position: absolute;
 	margin: -680px 0 0 50px;
+	width: 45%;
+	height: 300px;
 }
 .line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 2.5px;
+	fill: none;
+	stroke: steelblue;
+	stroke-width: 2px;
 }
 .backline {
-  fill: none;
-  stroke: gray;
-  stroke-width: 1.5px;
-  opacity: 0.3;
+	fill: none;
+	stroke: gray;
+	stroke-width: 1.5px;
+	opacity: 0.3;
 }
 .line__Tottoei ,.line__Nara ,.line__Shiga ,.line__Gifu ,.line__Toyama ,.line__Kyoto ,.line__Fukui ,.line__Yamanashi ,.line__Saitama ,.line__Gunma ,.line__Tochigi ,.line__Shizuoka ,.line__Nagano ,.line__Ibaragi ,.line__Chiba ,.line__Fukushima ,.line__Yamagata ,.line__Akita ,.line__Iwate ,.line__Aomori ,.line__Yamaguchi ,.line__Ehime ,.line__Shimane ,.line__Hiroshima ,.line__Okayama ,.line__Hyogo ,.line__Kagawa ,.line__Kochi ,.line__Tokushima ,.line__Osaka ,.line__Wakayama ,.line__Aichi ,.line__Mie ,.line__Ishikawa ,.line__Tokyo ,.line__Kanagawa ,.line__Nigata ,.line__Miyagi ,.line__Fukuoka ,.line__Oita ,.line__Saga ,.line__Kumamoto ,.line__Kagoshima ,.line__Miyazaki ,.line__Nagasaki ,.line__Okinawa ,.line__Hokkaido {
 	opacity: 0;
-	stroke: red;
+	stroke: #ff3333;
 }
 .text__Tottoei ,.text__Nara ,.text__Shiga ,.text__Gifu ,.text__Toyama ,.text__Kyoto ,.text__Fukui ,.text__Yamanashi ,.text__Saitama ,.text__Gunma ,.text__Tochigi ,.text__Shizuoka ,.text__Nagano ,.text__Ibaragi ,.text__Chiba ,.text__Fukushima ,.text__Yamagata ,.text__Akita ,.text__Iwate ,.text__Aomori ,.text__Yamaguchi ,.text__Ehime ,.text__Shimane ,.text__Hiroshima ,.text__Okayama ,.text__Hyogo ,.text__Kagawa ,.text__Kochi ,.text__Tokushima ,.text__Osaka ,.text__Wakayama ,.text__Aichi ,.text__Mie ,.text__Ishikawa ,.text__Tokyo ,.text__Kanagawa ,.text__Nigata ,.text__Miyagi ,.text__Fukuoka ,.text__Oita ,.text__Saga ,.text__Kumamoto ,.text__Kagoshima ,.text__Miyazaki ,.text__Nagasaki ,.text__Okinawa ,.text__Hokkaido {
 	opacity: 0;

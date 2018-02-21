@@ -22,9 +22,13 @@
 	  	var prefecturesIndex = { "Tottoei":"鳥取県", "Nara":"奈良県", "Shiga":"滋賀県", "Gifu":"岐阜県", "Toyama":"富山県", "Kyoto":"京都府", "Fukui":"福井県", "Yamanashi":"山梨県", "Saitama":"埼玉県", "Gunma":"群馬県", "Tochigi":"栃木県", "Shizuoka":"静岡県", "Nagano":"長野県", "Ibaragi":"茨城県", "Chiba":"千葉県", "Fukushima":"福島県", "Yamagata":"山形県", "Akita":"秋田県", "Iwate":"岩手県", "Aomori":"青森県", "Yamaguchi":"山口県", "Ehime":"愛媛県", "Shimane":"島根県", "Hiroshima":"広島県", "Okayama":"岡山県", "Hyogo":"兵庫県", "Kagawa":"香川県", "Kochi":"高知県", "Tokushima":"徳島県", "Osaka":"大阪府", "Wakayama":"和歌山県", "Aichi":"愛知県", "Mie":"三重県", "Ishikawa":"石川県", "Tokyo":"東京都", "Kanagawa":"神奈川県", "Nigata":"新潟県", "Miyagi":"宮城県", "Fukuoka":"福岡県", "Oita":"大分県", "Saga":"佐賀県", "Kumamoto":"熊本県", "Kagoshima":"鹿児島県", "Miyazaki":"宮城県", "Nagasaki":"長崎県", "Okinawa":"沖縄県", "Hokkaido":"北海道" };
 	  	var InvPrefecturesIndex = inverseObject(prefecturesIndex);
 
-	  	// 折れ線グラフにおける折れ線のstrokeとテキストのopacityを管理する辞書
+	  	// 都道府県のclickイベントを管理する辞書
 	  	var opacityDist = {};
-	  	for(var key in prefecturesIndex){ opacityDist[key] = 0; }
+	  	var clickdDist = {};
+	  	for(var key in prefecturesIndex){
+	  		opacityDist[key] = 0;
+	  		clickdDist[key] = false;
+	  	}
 
 		// 各データをマージしたgeoJSON
 		var newGeoJSON = geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson);
@@ -67,6 +71,9 @@
 
 		info.addTo(map);
 
+		// // resizeイベント
+		// d3.select(window).on("resize", resize, graphDataset);
+
 		// geoJSONと各データをマージする関数
 		function geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson){
 
@@ -94,8 +101,8 @@
 
 			// 描画領域やマージンを設定
 			var margin = {top: 20, right: 80, bottom: 30, left: 50},
-				w = 450,
-				h = 300,
+				w = parseInt(d3.select("#graphid").style("width")),
+				h = parseInt(d3.select("#graphid").style("height")),
 				width = w - margin.left - margin.right,
 				height = h - margin.top - margin.bottom;
 			var svg = d3.select("#graphid").append("svg").attr("width", w).attr("height", h),
@@ -113,8 +120,7 @@
 
 			// x,y軸スケールのrangeの設定
 			var x = d3.scaleTime().range([0, width]),
-			    y = d3.scaleLinear().range([height, 0]),
-			    z = d3.scaleOrdinal(d3.schemeCategory10);
+			    y = d3.scaleLinear().range([height, 0]);
 
 			// 折れ線情報の設定
 			var line = d3.line()
@@ -155,7 +161,7 @@
 					.attr("class", "backline")
 					.attr("d", function(d) { return line(d); });
 
-				// クリックイベントで表示する折れ線の描画
+				// clickイベントで表示する折れ線の描画
 				var prefecture = g.selectAll(".line")
 					.data(perPrefectureData)
 					.enter().append("g")
@@ -275,26 +281,35 @@
 
 		// ハイライト表示リセット関数(mouseoutイベント)
 		function resetHighlight(e) {
-			var layer = e.target;
+			// clickイベントに対応
+			var clickdPrefecture = e.target.feature.properties.ObjName_1;
+			if(clickdDist[clickdPrefecture]==false){
 
-			layer.setStyle({
-				weight: 2,
-				color: 'white',
-				fillOpacity: 0.7
-			});
-			//var geojson = L.geoJson(geojson);
-			//geojson.resetStyle(e.target);
+				var layer = e.target;
 
-			info.update();
+				layer.setStyle({
+					weight: 2,
+					color: 'white',
+					fillOpacity: 0.7
+				});
+				//var geojson = L.geoJson(geojson);
+				//geojson.resetStyle(e.target);
+
+				info.update();
+			}
 		}
 
-		// 折れ線追加関数(clickイベント)
+		// 折れ線追加＆ハイライト固定関数(clickイベント)
 		function addLineOnChart(e) {
+			// 折れ線追加
 			var clickdPrefecture = e.target.feature.properties.ObjName_1;
 			var newOpacity = (opacityDist[clickdPrefecture]!=0) ? 0 : 1;
 			d3.select(".line__"+clickdPrefecture).style("opacity", newOpacity);
 			d3.select(".text__"+clickdPrefecture).style("opacity", newOpacity);
 			opacityDist[clickdPrefecture] = newOpacity;
+			// ハイライト固定
+			var newClick = (clickdDist[clickdPrefecture]==false) ? true : false;
+			clickdDist[clickdPrefecture] = newClick;
 		}
 
 		// // ズーム関数(旧clickイベント)
@@ -310,6 +325,13 @@
 				click: addLineOnChart
 			});
 		}
+
+		// // resizeイベント関数
+		// function resize(graphDataset) {
+		//     // width幅を取得
+		//     var w = window.innerWidth - margin.left - margin.right;
+		//     drawLineChart(graphDataset, w);
+		// }
 
 		// 連想配列のkeyとvalueを反転させた連想配列を返す関数
 		function inverseObject (obj, keyIsNumber) {
