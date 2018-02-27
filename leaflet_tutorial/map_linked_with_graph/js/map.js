@@ -1,11 +1,11 @@
 !(function(){
 	"use strict";
 
-	var initLatLng = [35.8, 136.5];
+	var initLatLng = [38, 135];
 	var map = L.map('mapid', {maxZoom: 10, minZoom: 5}).setView(initLatLng, 5);
 
 	// 地図の表示範囲を制限
-	var cityBounds = [[50, 115], [20, 160]];
+	var cityBounds = [[50, 112], [25, 158]];
 	var cityRect = L.rectangle(cityBounds, {fillOpacity: 0, weight: 0});
 	cityRect.addTo(map);
 	map.setMaxBounds(cityBounds);
@@ -19,7 +19,7 @@
 	  	if (error) throw error;
 
 	  	// 都道府県のローマ字を漢字に直すための辞書
-	  	var prefecturesIndex = { "Tottoei":"鳥取県", "Nara":"奈良県", "Shiga":"滋賀県", "Gifu":"岐阜県", "Toyama":"富山県", "Kyoto":"京都府", "Fukui":"福井県", "Yamanashi":"山梨県", "Saitama":"埼玉県", "Gunma":"群馬県", "Tochigi":"栃木県", "Shizuoka":"静岡県", "Nagano":"長野県", "Ibaragi":"茨城県", "Chiba":"千葉県", "Fukushima":"福島県", "Yamagata":"山形県", "Akita":"秋田県", "Iwate":"岩手県", "Aomori":"青森県", "Yamaguchi":"山口県", "Ehime":"愛媛県", "Shimane":"島根県", "Hiroshima":"広島県", "Okayama":"岡山県", "Hyogo":"兵庫県", "Kagawa":"香川県", "Kochi":"高知県", "Tokushima":"徳島県", "Osaka":"大阪府", "Wakayama":"和歌山県", "Aichi":"愛知県", "Mie":"三重県", "Ishikawa":"石川県", "Tokyo":"東京都", "Kanagawa":"神奈川県", "Nigata":"新潟県", "Miyagi":"宮城県", "Fukuoka":"福岡県", "Oita":"大分県", "Saga":"佐賀県", "Kumamoto":"熊本県", "Kagoshima":"鹿児島県", "Miyazaki":"宮城県", "Nagasaki":"長崎県", "Okinawa":"沖縄県", "Hokkaido":"北海道" };
+	  	var prefecturesIndex = { "Tottoei":"鳥取県", "Nara":"奈良県", "Shiga":"滋賀県", "Gifu":"岐阜県", "Toyama":"富山県", "Kyoto":"京都府", "Fukui":"福井県", "Yamanashi":"山梨県", "Saitama":"埼玉県", "Gunma":"群馬県", "Tochigi":"栃木県", "Shizuoka":"静岡県", "Nagano":"長野県", "Ibaragi":"茨城県", "Chiba":"千葉県", "Fukushima":"福島県", "Yamagata":"山形県", "Akita":"秋田県", "Iwate":"岩手県", "Aomori":"青森県", "Yamaguchi":"山口県", "Ehime":"愛媛県", "Shimane":"島根県", "Hiroshima":"広島県", "Okayama":"岡山県", "Hyogo":"兵庫県", "Kagawa":"香川県", "Kochi":"高知県", "Tokushima":"徳島県", "Osaka":"大阪府", "Wakayama":"和歌山県", "Aichi":"愛知県", "Mie":"三重県", "Ishikawa":"石川県", "Tokyo":"東京都", "Kanagawa":"神奈川県", "Nigata":"新潟県", "Miyagi":"宮城県", "Fukuoka":"福岡県", "Oita":"大分県", "Saga":"佐賀県", "Kumamoto":"熊本県", "Kagoshima":"鹿児島県", "Miyazaki":"宮崎県", "Nagasaki":"長崎県", "Okinawa":"沖縄県", "Hokkaido":"北海道" };
 	  	var InvPrefecturesIndex = inverseObject(prefecturesIndex);
 
 	  	// 都道府県のclickイベントを管理する辞書
@@ -30,6 +30,10 @@
 	  		clickdDist[key] = false;
 	  	}
 
+		// 色の塗り分けの初期設定
+		var year = "2017";
+		var month = "9";
+
 		// 各データをマージしたgeoJSON
 		var newGeoJSON = geojsonMergeGuestsData(allGuestsData, foreignGuestsData, geojson);
 		// console.log(newGeoJSON);
@@ -37,10 +41,10 @@
 		// 折れ線グラフで使うデータセット
 		var graphDataset = prepareLineGraphData(newGeoJSON);
 		// console.log(graphDataset);
-		drawLineChart(graphDataset);
+		drawLineChart(graphDataset, year, month);
 
 		// 地理データの描画
-		L.geoJson(newGeoJSON, {
+		var baseLayer = L.geoJson(newGeoJSON, {
 				style: style,
 				onEachFeature: onEachFeature
 			}).addTo(map);
@@ -56,16 +60,17 @@
 
 		info.update = function(props) {
 			if(props){
-				var allGuestsNum = props.allGuestsData["2017"]["9"];
-				var foreignGuestsNum = props.foreignGuestsData["2017"]["9"];
+				var allGuestsNum = props.allGuestsData[year][month];
+				var foreignGuestsNum = props.foreignGuestsData[year][month];
 				var foreignRatio = Number(foreignGuestsNum.replace(/,/g, ''))/Number(allGuestsNum.replace(/,/g, ''));
 
-				this._div.innerHTML = '<h4>宿泊旅行統計</h4>' + '<b>' + props.prefecturesName
+				this._div.innerHTML = "<h4>宿泊旅行統計 (<span id='legendDate'>" + year + "年" + month + "月" + "</span>)</h4>"
+				+ '<b>' + props.prefecturesName
 				+ '</b><br />宿泊客総数: ' + allGuestsNum + " 人"
 				+ '</b><br />外国人宿泊客数: ' + foreignGuestsNum + " 人"
 				+ '</b><br />外国人宿泊客の割合: ' + Math.floor(foreignRatio*1000)/10 + "%";
 			} else {
-				this._div.innerHTML = '<h4>宿泊旅行統計</h4>Hover over a land';
+				this._div.innerHTML = "<h4>宿泊旅行統計 (<span id='legendDate'>" + year + "年" + month + "月" + "</span>)</h4>Hover over a land";
 			}
 		};
 
@@ -100,7 +105,7 @@
 		function drawLineChart(graphDataset){
 
 			// 描画領域やマージンを設定
-			var margin = {top: 20, right: 80, bottom: 30, left: 50},
+			var margin = {top: 30, right: 80, bottom: 30, left: 50},
 				w = parseInt(d3.select("#graphid").style("width")),
 				h = parseInt(d3.select("#graphid").style("height")),
 				width = w - margin.left - margin.right,
@@ -149,6 +154,11 @@
 
 			var perPrefectureData = getPerPrefectureData(graphDataset);
 
+			var allTerms = perPrefectureData[0].map(function(d){
+				return d.date;
+			});
+
+			// 折れ線グラフを描画
 			perPrefectureData.forEach(function(prefectureData){
 
 				// 背景側の折れ線の描画
@@ -183,6 +193,117 @@
 
 			});
 
+			// 選択中のrectの属性を置いておく
+			var selectedRect = year + month;
+
+			// 選択されている年月の目印を描画
+			var selectedTime = g.selectAll(".rect")
+				.data(allTerms)
+				.enter();
+
+			// 折れ線グラフのclickイベントで発火するrectを描画
+			selectedTime.append("rect")
+				.attr("x", function(d){ return x(d); })
+				.attr("y", 0)
+				.style("opacity", 0)
+				.attr("height", height)
+				.attr("class", function(d) {
+					var thisTime = date2YearMonth(d);
+					return "selectedTime__backRect rect__" + thisTime["year"]+thisTime["month"];
+				});
+
+			// 折れ線グラフのmouseoverイベントで発火するrectを描画
+			selectedTime.append("rect")
+				.attr("x", function(d){ return x(d); })
+				.attr("y", 0)
+				.attr("height", height)
+				.attr("class", "selectedTime__rect")
+				.text(function(d) { return d; })
+				.on("mouseover", function(d){
+					d3.select(this).style("opacity", 0.4);
+					// rectに連動するテキストのopacityを変更
+					var thisTime = date2YearMonth(this.textContent);
+					d3.select(".text__"+thisTime["year"]+thisTime["month"]).style("opacity", 1);
+					d3.select(".mark__"+thisTime["year"]+thisTime["month"]).style("opacity", 1);
+				})
+				.on("click", function(d){
+					var thisTime = date2YearMonth(this.textContent);
+					year = String(thisTime["year"]);
+					month = String(thisTime["month"]);
+					// mouseover時に出現するrectを、click時には消す
+					d3.select(this).style("opacity", 0);
+					// 前のclickイベントで選択されていたrect、markのopacityを変更
+					d3.select(".rect__"+selectedRect).style("opacity", 0);
+					d3.select(".marked__"+selectedRect).style("opacity", 0);
+					// 今回のclickイベントで選択されたrect、markの情報を更新＆opacityを変更
+					selectedRect = year + month;
+					d3.select(".rect__"+selectedRect).style("opacity", 0.9);
+					d3.select(".marked__"+selectedRect).style("opacity", 1);
+					// 地図の塗り分けをclickした年月に変更
+					baseLayer.setStyle(style);
+					// legendの年月を変更
+					d3.select("#legendDate").text(year + "年" + month + "月");
+				})
+				.on("mouseout", function(d){
+					d3.select(this).style("opacity", 0);
+					// rectに連動するテキストのopacityを変更
+					var thisTime = date2YearMonth(this.textContent);
+					d3.select(".text__"+thisTime["year"]+thisTime["month"]).style("opacity", 0);
+					d3.select(".mark__"+thisTime["year"]+thisTime["month"]).style("opacity", 0);
+				});
+
+			// 折れ線グラフのmouseoverイベントに連動するテキスト①を描画
+			selectedTime.append("text")
+				.attr("x", function(d){ return x(d)-30; })
+				.attr("y", -18)
+				.style("opacity", 0)
+				.style("font-size", "12px")
+				.attr("class", function(d) {
+					var thisTime = date2YearMonth(d);
+					return "text__" + thisTime["year"]+thisTime["month"];
+				})
+				.text(function(d){
+					var thisTime = date2YearMonth(d);
+					return thisTime["year"]+"年"+thisTime["month"]+"月";
+				});
+
+			// 折れ線グラフのmouseoverイベントに連動するテキスト②を描画
+			selectedTime.append("text")
+				.attr("x", function(d){ return x(d)-5.5; })
+				.attr("y", -4)
+				.style("opacity", 0)
+				.style("font-size", "15px")
+				.attr("class", function(d) {
+					var thisTime = date2YearMonth(d);
+					return "mark__" + thisTime["year"]+thisTime["month"];
+				})
+				.text("▼");
+
+			// 折れ線グラフのclickイベントで発火するテキストを描画
+			selectedTime.append("text")
+				.attr("x", function(d){ return x(d)-5.5; })
+				.attr("y", -4)
+				.style("opacity", 0)
+				.style("font-size", "15px")
+				.style("fill", "red")
+				.attr("class", function(d) {
+					var thisTime = date2YearMonth(d);
+					return "marked__" + thisTime["year"]+thisTime["month"];
+				})
+				.text("▼");
+
+			// 初期表示しておくrectとテキストを設定
+			d3.select(".rect__"+String(year)+String(month)).style("opacity", 0.9);
+			d3.select(".marked__"+String(year)+String(month)).style("opacity", 1);
+
+		}
+
+		// parse済みのDateから年月を抽出する関数
+		function date2YearMonth(date){
+			var time = new Date(date);
+			var year = time.getFullYear();
+			var month = time.getMonth()+1;
+			return {"year": year, "month": month};
 		}
 
 		// 折れ線グラフで使うデータセットを作成する関数
@@ -198,7 +319,7 @@
 					var thisYearData = thisAreaData[year];
 					Object.keys(thisYearData).forEach(function(month){
 						var tempDist = {};
-						if(month.length==1){ var thisMonth = "0"+month } else { var thisMonth = month; }
+						if(month.length==1){ var thisMonth = "0" + month; } else { var thisMonth = month; }
 						var thisDate = year + thisMonth;
 						var thisRatio = Math.floor( Number(areaData.properties.foreignGuestsData[year][month].replace(/,/g, '')) / Number(areaData.properties.allGuestsData[year][month].replace(/,/g, '')) * 1000)/10;
 						tempDist.date = thisDate;
@@ -250,8 +371,8 @@
 		}
 
 		function style(feature) {
-			var allGuestsNum = feature.properties.allGuestsData["2017"]["9"];
-			var foreignGuestsNum = feature.properties.foreignGuestsData["2017"]["9"];
+			var allGuestsNum = feature.properties.allGuestsData[year][month];
+			var foreignGuestsNum = feature.properties.foreignGuestsData[year][month];
 			var foreignRatio = Number(foreignGuestsNum.replace(/,/g, ''))/Number(allGuestsNum.replace(/,/g, ''));
 			return {
 				fillColor: getColor(Math.floor(foreignRatio*1000)/10),
