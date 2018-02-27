@@ -76,6 +76,24 @@
 
 		info.addTo(map);
 
+		// 凡例の表示
+		var legend = L.control({position: 'bottomright'});
+		var color_range = [22.5, 20, 17.5, 15, 12.5, 10, 7.5, 5, 2.5];
+
+		legend.onAdd = function(map) {
+			var div = L.DomUtil.create('div', 'info legend');
+			div.innerHTML = "<h4>凡例(%)</h4>";
+			for (var i=0; i < color_range.length; i++) {
+				div.innerHTML +=
+					'<i style="background:' + getColor(color_range[i]) + '"></i> ' +
+					(color_range[i-1]||color_range[i-1]==0 ? color_range[i] : "") +
+					(color_range[i+1]||color_range[i+1]==0 ? ' 〜 ' + color_range[i+1] : ' 〜') + '<br>';
+			}
+			return div;
+		};
+
+		legend.addTo(map);
+
 		// // resizeイベント
 		// d3.select(window).on("resize", resize, graphDataset);
 

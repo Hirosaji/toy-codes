@@ -72,3 +72,17 @@
 .text__Tottoei ,.text__Nara ,.text__Shiga ,.text__Gifu ,.text__Toyama ,.text__Kyoto ,.text__Fukui ,.text__Yamanashi ,.text__Saitama ,.text__Gunma ,.text__Tochigi ,.text__Shizuoka ,.text__Nagano ,.text__Ibaragi ,.text__Chiba ,.text__Fukushima ,.text__Yamagata ,.text__Akita ,.text__Iwate ,.text__Aomori ,.text__Yamaguchi ,.text__Ehime ,.text__Shimane ,.text__Hiroshima ,.text__Okayama ,.text__Hyogo ,.text__Kagawa ,.text__Kochi ,.text__Tokushima ,.text__Osaka ,.text__Wakayama ,.text__Aichi ,.text__Mie ,.text__Ishikawa ,.text__Tokyo ,.text__Kanagawa ,.text__Nigata ,.text__Miyagi ,.text__Fukuoka ,.text__Oita ,.text__Saga ,.text__Kumamoto ,.text__Kagoshima ,.text__Miyazaki ,.text__Nagasaki ,.text__Okinawa ,.text__Hokkaido {
 	opacity: 0;
 }
+
+
+/********** 凡例 **********/
+.legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.8;
+}
