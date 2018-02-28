@@ -392,13 +392,23 @@
 			var allGuestsNum = feature.properties.allGuestsData[year][month];
 			var foreignGuestsNum = feature.properties.foreignGuestsData[year][month];
 			var foreignRatio = Number(foreignGuestsNum.replace(/,/g, ''))/Number(allGuestsNum.replace(/,/g, ''));
-			return {
-				fillColor: getColor(Math.floor(foreignRatio*1000)/10),
-				weight: 2,
-				opacity: 1,
-				color: 'white',
-				fillOpacity: 0.7
-			};
+			if(clickdDist[feature.properties.ObjName_1] === true){
+				return {
+					fillColor: getColor(Math.floor(foreignRatio*1000)/10),
+					weight: 5,
+					opacity: 1,
+					color: '#666',
+					fillOpacity: 0.7
+				};
+			} else {
+				return {
+					fillColor: getColor(Math.floor(foreignRatio*1000)/10),
+					weight: 2,
+					opacity: 1,
+					color: 'white',
+					fillOpacity: 0.7
+				};
+			}
 		}
 
 		// ハイライト表示関数(mouseoverイベント)
