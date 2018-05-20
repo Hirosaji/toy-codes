@@ -1,5 +1,5 @@
 .DS_Store
 macMap/dir/credentials.js
-web_wordcloud/js/credentials.js
-web_wordcloud/node_modules/*
-web_wordcloud/json/*
+web_wordcloud/api/js/credentials.js
+web_wordcloud/api/node_modules/*
+web_wordcloud/api/json/*
