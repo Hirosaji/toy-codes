@@ -42,7 +42,8 @@ function tweets_preformat(tweets){
 	});
 
 	let all_tweet_word = '';
-	let words_freq = {};
+	let words_freq = [['count', 'word']];
+	let exist_words = [];
 	let mecab = new MeCab();
 	let escape_words = ['RT', 'http', 'https', '://', ':', ';', '@', '@_', '#', '/', '.', 'D'];
 
@@ -50,22 +51,36 @@ function tweets_preformat(tweets){
 
 		words_info.forEach(function(word_info){
 			if(word_info[1] === '名詞' && isNaN(word_info[0]) && escape_words.indexOf(word_info[0]) === -1){
-				if(Object.keys(words_freq).indexOf(word_info[0])){
-					words_freq[word_info[0]] = 1;
+				let word_order = exist_words.indexOf(word_info[0])
+				if(word_order === -1){
+					words_freq.push([1, word_info[0]])
+					exist_words.push(word_info[0])
 				}
 				else {
-					words_freq[word_info[0]] = words_freq[word_info[0]] + 1;
+					words_freq[word_order][0] = words_freq[word_order][0] + 1;
 				}
 			};
 		});
-		console.log(words_freq)
+		generate_wordcloud(words_freq);
 
 	});
 
 };
 
-get_tweets()
 
-// // ローカルテスト用
-// var tweets = JSON.parse(fs.readFileSync('../json/tweets.json', 'utf8'));
-// tweets_preformat(tweets);
+function generate_wordcloud(words_freq){
+
+	var height = 800
+	var weight = 800
+	var data = words_freq.splice(0, 1000)
+
+	var random = d3.randomUniform(3)
+	console.log(random)
+
+};
+
+// get_tweets()
+
+// ローカルテスト用
+var tweets = JSON.parse(fs.readFileSync('../json/tweets.json', 'utf8'));
+tweets_preformat(tweets);
