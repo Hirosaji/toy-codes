@@ -16,7 +16,7 @@ function get_tweets(){
 	let params = {
 		user_id: credentials.twitter_userID,
 		count: 200,
-	}
+	};
 
 	client.get('statuses/user_timeline', params, function(error, tweets, response){
 
@@ -28,9 +28,9 @@ function get_tweets(){
 
 		tweets_preformat(tweets);
 
-	})
+	});
 
-}
+};
 
 
 function tweets_preformat(tweets){
@@ -44,7 +44,7 @@ function tweets_preformat(tweets){
 	let all_tweet_word = '';
 	let words_freq = {};
 	let mecab = new MeCab();
-	let escape_words = ['RT', 'http', 'https', '://', ':', ';', '@', '@_', '#', '/', '.', 'D']
+	let escape_words = ['RT', 'http', 'https', '://', ':', ';', '@', '@_', '#', '/', '.', 'D'];
 
 	mecab.parse(all_tweet_text, function(err, words_info) {
 
@@ -56,13 +56,13 @@ function tweets_preformat(tweets){
 				else {
 					words_freq[word_info[0]] = words_freq[word_info[0]] + 1;
 				}
-			}
-		})
+			};
+		});
 		console.log(words_freq)
 
 	});
 
-}
+};
 
 get_tweets()
 
