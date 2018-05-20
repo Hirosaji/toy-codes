@@ -13,3 +13,5 @@
 	- Leaflet.jsの練習コード
 - macMap
 	- マクドナルド全店舗を載せたWeb地図
+- web_wordcloud
+	- 自分のツイート全文のワードクラウドを生成してwebで表示する
