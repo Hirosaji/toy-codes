@@ -7,5 +7,9 @@
 	- Cesium.jsの練習コード
 - char-canvas_for_ascii
 	- CharCanvas.jsの練習コード
+- handson
+	- Djsngoのチュートリアル（Todo管理アプリ）
 - leaflet_tutorial
 	- Leaflet.jsの練習コード
+- macMap
+	- マクドナルド全店舗を載せたWeb地図
