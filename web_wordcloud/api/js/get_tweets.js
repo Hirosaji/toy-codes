@@ -56,7 +56,9 @@ app.get('/', function(req, res) {
 		let words_freq = [['count', 'word']];
 		let exist_words = [];
 		let mecab = new MeCab();
-		let escape_words = ['RT', 'http', 'https', '://', ':', ';', '@', '@_', '#', '/', '.', 'D'];
+		let escape_words = ['RT', 'http', 'https', '://', ':', ';', '@', '@_', '：@_', '#', '/', '.', 'D'];
+
+		all_tweet_text = all_tweet_text.replace(/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?/g, '')
 
 		mecab.parse(all_tweet_text, function(err, words_info) {
 
@@ -68,7 +70,7 @@ app.get('/', function(req, res) {
 						exist_words.push(word_info[0])
 					}
 					else {
-						words_freq[word_order][0] = words_freq[word_order][0] + 1;
+						words_freq[word_order+1][0] = words_freq[word_order+1][0] + 1;
 					}
 				};
 			});
