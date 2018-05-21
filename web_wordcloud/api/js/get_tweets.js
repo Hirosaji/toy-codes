@@ -68,7 +68,7 @@ app.post('/', function(req, res) {
 			});
 
 			let all_tweet_word = '';
-			let words_freq = [['count', 'word']];
+			let words_freq = [];
 			let exist_words = [];
 			let mecab = new MeCab();
 			let escape_words = ['RT', 'http', 'https', '://', ':', ';', '@', '@_', '：@_', '#', '/', '.', 'D'];
@@ -85,7 +85,7 @@ app.post('/', function(req, res) {
 							exist_words.push(word_info[0]);
 						}
 						else {
-							words_freq[word_order+1][0] = words_freq[word_order+1][0] + 1;
+							words_freq[word_order][0] = words_freq[word_order][0] + 1;
 						}
 					}
 				});
