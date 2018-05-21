@@ -46,7 +46,7 @@ app.get('/', function(req, res) {
 
 		});
 
-	};
+	}
 
 	function tweets_preformat(tweets){
 
@@ -64,21 +64,21 @@ app.get('/', function(req, res) {
 			let mecab = new MeCab();
 			let escape_words = ['RT', 'http', 'https', '://', ':', ';', '@', '@_', '：@_', '#', '/', '.', 'D'];
 
-			all_tweet_text = all_tweet_text.replace(/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?/g, '')
+			all_tweet_text = all_tweet_text.replace(/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?/g, '');
 
 			mecab.parse(all_tweet_text, function(err, words_info) {
 
 				words_info.forEach(function(word_info){
 					if(word_info[1] === '名詞' && isNaN(word_info[0]) && escape_words.indexOf(word_info[0]) === -1){
-						let word_order = exist_words.indexOf(word_info[0])
+						let word_order = exist_words.indexOf(word_info[0]);
 						if(word_order === -1){
-							words_freq.push([1, word_info[0]])
-							exist_words.push(word_info[0])
+							words_freq.push([1, word_info[0]]);
+							exist_words.push(word_info[0]);
 						}
 						else {
 							words_freq[word_order+1][0] = words_freq[word_order+1][0] + 1;
 						}
-					};
+					}
 				});
 				resolve(words_freq);
 
@@ -86,7 +86,7 @@ app.get('/', function(req, res) {
 
 		});
 
-	};
+	}
 
 	get_tweets().then(function(tweets){
 		res.json({ 'body': tweets });
