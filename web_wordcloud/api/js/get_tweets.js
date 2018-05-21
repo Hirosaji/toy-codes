@@ -34,11 +34,11 @@ app.post('/', function(req, res) {
 			    access_token_secret: credentials.twitter_Access_Token_Secret,
 			});
 
-			let user_name = req.body.id;
+			let user_id = req.body.id;
 
 			let params = {
-				user_id: user_name,
-				count: 200,
+				'user_id': user_id,
+				'count': 200,
 			};
 
 			client.get('statuses/user_timeline', params, function(error, tweets, response){
