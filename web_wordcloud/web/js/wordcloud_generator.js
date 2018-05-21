@@ -67,5 +67,5 @@ function generate_wordcloud(words_freq){
 
 }
 
-var user_id = '812938399250165760';
+var user_id = '812938399250165760';  // HirosajiのTwitterID
 post_userID_for_tweets(user_id);
