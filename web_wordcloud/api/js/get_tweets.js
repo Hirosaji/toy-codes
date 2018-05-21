@@ -15,8 +15,13 @@ const credentials = require('./credentials.js');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
-app.get('/', function(req, res) {
+app.post('/', function(req, res) {
 
 	function get_tweets(){
 
@@ -29,8 +34,10 @@ app.get('/', function(req, res) {
 			    access_token_secret: credentials.twitter_Access_Token_Secret,
 			});
 
+			let user_name = req.body.id;
+
 			let params = {
-				user_id: credentials.twitter_userID,
+				user_id: user_name,
 				count: 200,
 			};
 
@@ -61,7 +68,7 @@ app.get('/', function(req, res) {
 			});
 
 			let all_tweet_word = '';
-			let words_freq = [['count', 'word']];
+			let words_freq = [];
 			let exist_words = [];
 			let mecab = new MeCab();
 			let escape_words = ['RT', 'http', 'https', '://', ':', ';', '@', '@_', '：@_', '#', '/', '.', 'D'];
@@ -78,7 +85,7 @@ app.get('/', function(req, res) {
 							exist_words.push(word_info[0]);
 						}
 						else {
-							words_freq[word_order+1][0] = words_freq[word_order+1][0] + 1;
+							words_freq[word_order][0] = words_freq[word_order][0] + 1;
 						}
 					}
 				});
