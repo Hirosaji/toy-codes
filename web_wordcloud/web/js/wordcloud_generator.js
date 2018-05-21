@@ -1,6 +1,6 @@
 function post_userID_for_tweets(user_id){
 
-	var rest_api_url = 'https://f81eece0.ngrok.io';
+	var rest_api_url = 'ngrokで生成したURL';
 
 	fetch(rest_api_url, {
 	    method: 'POST',

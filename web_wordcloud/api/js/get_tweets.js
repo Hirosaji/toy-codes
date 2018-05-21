@@ -9,16 +9,16 @@ const server = app.listen(3000, function(){
 });
 
 const fs = require('fs');
-const MeCab = require('mecab-async');
+const kuromoji = require('kuromoji');
 const twitterClient = require('twitter');
 const credentials = require('./credentials.js');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
 });
 
 app.post('/', function(req, res) {
@@ -64,25 +64,30 @@ app.post('/', function(req, res) {
 			let all_tweet_text = '';
 
 			tweets.forEach(function(tweet){
-				all_tweet_text = all_tweet_text + tweet['text'];
+				all_tweet_text = all_tweet_text + tweet['text'].replace(/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?/g, '');
 			});
 
 			let all_tweet_word = '';
 			let words_freq = [];
 			let exist_words = [];
-			let mecab = new MeCab();
-			let escape_words = ['RT', 'http', 'https', '://', ':', ';', '@', '@_', '：@_', '#', '/', '.', 'D'];
+			var builder = kuromoji.builder({
+				dicPath: '../node_modules/kuromoji/dict/'
+			});
+			let escape_words = ['RT', ':', ';', '@', '@_', '：@_', '.@', '#', '/', '.', 'D', '[', ']'];
 
-			all_tweet_text = all_tweet_text.replace(/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?/g, '');
-
-			mecab.parse(all_tweet_text, function(err, words_info) {
+			builder.build(function(err, tokenizer){
+				if(err) {
+					console.log(err);
+					return;
+				}
+				var words_info = tokenizer.tokenize(all_tweet_text);
 
 				words_info.forEach(function(word_info){
-					if(word_info[1] === '名詞' && isNaN(word_info[0]) && escape_words.indexOf(word_info[0]) === -1){
-						let word_order = exist_words.indexOf(word_info[0]);
+					if(word_info['pos'] === '名詞' && isNaN(word_info['surface_form']) && escape_words.indexOf(word_info['surface_form']) === -1){
+						let word_order = exist_words.indexOf(word_info['surface_form']);
 						if(word_order === -1){
-							words_freq.push([1, word_info[0]]);
-							exist_words.push(word_info[0]);
+							words_freq.push([1, word_info['surface_form']]);
+							exist_words.push(word_info['surface_form']);
 						}
 						else {
 							words_freq[word_order][0] = words_freq[word_order][0] + 1;
