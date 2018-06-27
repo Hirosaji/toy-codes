@@ -69,6 +69,7 @@ app.post('/', function(req, res) {
 
 			let all_tweet_word = '';
 			let words_freq = [];
+			let filtered_words_freq = [];
 			let exist_words = [];
 			var builder = kuromoji.builder({
 				dicPath: '../node_modules/kuromoji/dict/'
@@ -94,7 +95,12 @@ app.post('/', function(req, res) {
 						}
 					}
 				});
-				resolve(words_freq);
+				words_freq.forEach(function(words_freq_info){
+					if(words_freq_info[0] !== 1){
+						filtered_words_freq.push(words_freq_info);
+					}
+				})
+				resolve(filtered_words_freq);
 
 			});
 
