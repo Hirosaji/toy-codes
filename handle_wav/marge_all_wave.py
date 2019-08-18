@@ -37,14 +37,13 @@ def to_str_num(i):
 
 if __name__ == '__main__':
     voice_types = ['normal', 'happy', 'angry']
+    actor_name = 'uemura'
     inputs = []
-    output = 'marged_data.wav'
+    output = actor_name + '_data.wav'
 
     for vType in voice_types:
-        path = './data/uemura_' + vType + '/'
-        wavPrefix = 'uemura_' + vType + '_'
-        inputs.extend([path + wavPrefix + to_str_num(n) + '.wav' for n in range(0,100)])
-
-    print(inputs)
+        path = './data/' + actor_name + '_' + vType + '/_sampled/'
+        wavPrefix = actor_name + '_' + vType + '_'
+        inputs.extend([path + wavPrefix + to_str_num(n) + '_.wav' for n in range(0,100)])
 
     join_waves(inputs, output)
