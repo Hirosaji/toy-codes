@@ -1,0 +1,21 @@
+{
+  "bookendVersion": "v1.0",
+  "shareProviders": [
+    "facebook",
+    "twitter",
+    "email"
+  ],
+  "components": [
+    {
+      "type": "heading",
+      "text": "詳しくはこちら"
+    },
+    {
+      "type": "landscape",
+      "title": "Sample",
+      "url": "#",
+      "category": "astronomy",
+      "image": "img/vdata_bnr.jpg"
+    }
+  ]
+}
