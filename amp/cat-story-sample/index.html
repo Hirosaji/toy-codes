@@ -144,14 +144,19 @@
             background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
         }
 
-        .favicon {
+        .icon {
             margin-bottom: 5px;
         }
     </style>
 </head>
 
 <body>
-    <amp-story standalone supports-landscape title="悲劇から30年、チェルノブイリの実相" publisher="日経Visual Data">
+    <amp-story
+        standalone supports-landscape
+        title="サンプルページ"
+        publisher="sample inc."
+        publisher-logo-src="img/icon.png"
+        poster-portrait-src="img/OG.png">
 
         <!-- Cover -->
         <amp-story-page id="cover">
@@ -163,7 +168,7 @@
                 </div>
             </amp-story-grid-layer>
             <amp-story-grid-layer template="vertical" class="main-title__bottom">
-                <amp-img src="img/favicon.png" layout="fixed" width="32" height="32" class="favicon" alt="favicon">
+                <amp-img src="img/icon.png" layout="fixed" width="32" height="32" class="icon" alt="icon">
                 </amp-img>
                 <div animate-in="fade-in" animate-in-duration="1s" animate-in-delay="0.25s">
                     <h1>タイトルタイト</h1>
@@ -180,7 +185,7 @@
         <amp-story-page id="page1">
             <amp-story-grid-layer template="fill">
                 <amp-video autoplay loop poster="img/001.png" object-position="34% 40%" width="1280" height="720">
-                    <source src="video/001.mp4" type="video/mp4">
+                    <source src="http://vdata-summary.nikkei.com.s3-website-ap-northeast-1.amazonaws.com/video/001.mp4" type="video/mp4">
                 </amp-video>
             </amp-story-grid-layer>
             <amp-story-grid-layer template="vertical" class="text__top">
