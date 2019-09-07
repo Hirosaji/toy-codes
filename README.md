@@ -9,6 +9,11 @@
 	- Cesium.jsの練習コード
 - char-canvas_for_ascii
 	- CharCanvas.jsの練習コード
+- handle_wav
+	- 音声ファイルを操作するスクリプト群
+		- 複数ファイルの結合
+		- 無音声部分の削除
+		- アップ／ダウンサンプリング
 - handson
 	- Djsngoのチュートリアル（Todo管理アプリ）
 - leaflet_tutorial
