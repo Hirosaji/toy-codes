@@ -81,12 +81,11 @@ if __name__ == "__main__":
     time = np.arange(0.0, 0.05, 1 / fs)
 
     # set simple signals
-    sinwav1 = 1.2 * np.sin(2 * np.pi * 130 * time)  # 振幅1.2、周波数130Hz
-    coswav1 = 0.9 * np.cos(2 * np.pi * 200 * time)  # 振幅0.9、周波数200Hz
-    sinwav2 = 1.8 * np.sin(2 * np.pi * 260 * time)  # 振幅1.8、周波数260Hz
-    coswav2 = 1.4 * np.cos(2 * np.pi * 320 * time)  # 振幅1.4、周波数320Hz
-    sinwav3 = 2.0 * np.sin(2 * np.pi * 2000 * time)  # 振幅1.8、周波数260Hz
-    # coswav3 = 1.4 * np.cos(2 * np.pi * 320 * time)  # 振幅1.4、周波数320Hz
+    sinwav1 = 1.2 * np.sin(2 * np.pi * 130 * time)  # amp: 1.2, freq: 130Hz
+    coswav1 = 0.9 * np.cos(2 * np.pi * 200 * time)  # amp: 0.9, freq: 200Hz
+    sinwav2 = 1.8 * np.sin(2 * np.pi * 260 * time)  # amp: 1.8, freq: 260Hz
+    coswav2 = 1.4 * np.cos(2 * np.pi * 320 * time)  # amp: 1.4, freq: 320Hz
+    sinwav3 = 2.0 * np.sin(2 * np.pi * 2000 * time)  # amp: 1.8, freq: 260Hz
 
     # merge signals
     wavdata = 1.4 + (sinwav1 + coswav1 + sinwav2 + coswav2
