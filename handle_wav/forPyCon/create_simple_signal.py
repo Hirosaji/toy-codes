@@ -38,14 +38,14 @@ def drawSpectrum(n, Adft, Pdft, fscale):
 
     # plot amplitude spectrum
     pylab.subplot(211)
-    pylab.plot(fscale[0:n//2], Adft[0:n//2])
+    pylab.plot(fscale[0:int(n/2)], Adft[0:int(n/2)])
     pylab.xlabel("frequency [Hz]")
     pylab.ylabel("amplitude spectrum")
     pylab.xlim(0, 1000)
 
     # plot power spectrum
     pylab.subplot(212)
-    pylab.plot(fscale[0:n//2], Pdft[0:n//2])
+    pylab.plot(fscale[0:int(n/2)], Pdft[0:int(n/2)])
     pylab.xlabel("frequency [Hz]")
     pylab.ylabel("power spectrum")
     pylab.xlim(0, 1000)
@@ -58,14 +58,14 @@ def drawLogSpectrum(n, Adft, Pdft, fscale):
 
     # plot log amplitude spectrum
     pylab.subplot(211)
-    pylab.plot(fscale[0:n//2], 20 * np.log10(Adft[0:n//2]))
+    pylab.plot(fscale[0:int(n/2)], 20 * np.log10(Adft[0:int(n/2)]))
     pylab.xlabel("frequency [Hz]")
     pylab.ylabel("log amplitude spectrum [dB]")
     pylab.xlim(0, 1000)
 
     # plot log power spectrum
     pylab.subplot(212)
-    pylab.plot(fscale[0:n//2], 10 * np.log10(Pdft[0:n//2]))
+    pylab.plot(fscale[0:int(n/2)], 10 * np.log10(Pdft[0:int(n/2)]))
     pylab.xlabel("frequency [Hz]")
     pylab.ylabel("log power spectrum [dB]")
     pylab.xlim(0, 1000)
