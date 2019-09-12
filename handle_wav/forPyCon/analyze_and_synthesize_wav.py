@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     # load target wav file
     src_path = "wav/sample01.wav"
-    fs, raw = wavfile.read(src_path)
+    fs, raw_wave = wavfile.read(src_path)
 
     # common params
     frame_period = 5                                # frame period
@@ -34,14 +34,14 @@ if __name__ == "__main__":
 
     # add white noise
     rate = 0.02
-    _data = raw.astype(np.float64)
+    _data = raw_wave.astype(np.float64)
     data = _data + rate * np.random.randn(len(_data))
 
     # collect features
     _f0, timeaxis = pyworld.dio(data, fs, frame_period=frame_period)    # raw pitch F0
     f0 = pyworld.stonemask(data, _f0, timeaxis, fs)                     # pitch refined F0
     spectrogram = pyworld.cheaptrick(data, f0, timeaxis, fs)            # extract smoothed spectrogram
-    aperiodicity = pyworld.d4c(x, f0, timeaxis, fs)                     # extract aperiodicity
+    aperiodicity = pyworld.d4c(data, f0, timeaxis, fs)                     # extract aperiodicity
     mcep = pysptk.sp2mc(spectrogram, order=order, alpha=alpha)          # calculate mel-cepstraum
 
     ##############################
@@ -56,10 +56,14 @@ if __name__ == "__main__":
     spectrogram = pysptk.mc2sp(mcep.astype(np.float64), alpha=alpha, fftlen=fftlen)
 
     # synthesize wav data
-    waveform = pyworld.synthesize(f0, spectrogram, aperiodicity, fs, frame_period=frame_period)*0.00003
+    _wave = pyworld.synthesize(f0, spectrogram, aperiodicity, fs, frame_period=frame_period)
+
+    # adjust sound volume
+    volume_weight = 0.00003
+    wave = _wave * volume_weight
 
     # write wave data as wav file
-    wavfile.write('sample.wav', fs, waveform)
+    wavfile.write('sample.wav', fs, wave)
 
     # plot for comparing raw wav to synthesized wav
-    comparisonPlot(x, waveform)
+    comparisonPlot(raw_wave, wave)
