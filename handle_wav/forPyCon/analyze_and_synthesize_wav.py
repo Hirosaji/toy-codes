@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
 from scipy.io import wavfile
-from nnmnkwii.util import trim_zeros_frames
 import pyworld
 import pysptk
 import numpy as np
