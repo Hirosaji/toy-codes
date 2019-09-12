@@ -9,53 +9,64 @@ from scipy.io import wavfile
 from pysas import excite
 from pysptk.synthesis import MLSADF, Synthesizer
 
+
 def AddWhiteNoise(x, rate=0.02):
     x = x.astype(np.float64)
     return x + rate * np.random.randn(len(x))
 
-# read wav file
-wavefile = “wav/sample02.wav”
-fs, x = wavfile.read(wavefile) # fs: sampling rate, x: wave data
 
-# add white noise on target wav data
-data = AddWhiteNoise(x)
+def plot(x, xsynthe):
 
-# multiplicate window func
-frame_length = 1024
-hop_length = 80
-frames = librosa.util.frame(data, frame_length=frame_length, hop_length=hop_length).astype(np.float64).T
-frames *= sptk.blackman(frame_length)
+    # plot original wav data
+    plot.subplot(3,1,1)
+    plot.plot(x)
 
-# estimate F0
-f0 = sptk.swipe(data.astype(np.float64), fs=fs, hopsize=hop_length, min=25, max=2000)
-generator = excite.ExcitePulse(fs, hop_length, False)
-source_excitation = generator.gen(f0)
+    # plot synthesized audio data
+    plot.subplot(3,1,2)
+    plot.plot(xsynthe)
 
-# params
-order = 25
-alpha = 0.41
+    # plot origin & synthesized
+    plot.subplot(3,1,3)
+    plot.plot(x)
+    plot.plot(xsynthe)
 
-# estimate mel cepstrum (MCEP)
-mc = sptk.mcep(frames, order, alpha)
-synthe = Synthesizer(MLSADF(order=order, alpha=alpha), hop_length)
+    # draw
+    plot.show()
 
-# synthesize audio data from acoustic features
-b = sptk.mc2b(mc, alpha)
-xsynthe = synthe.synthesis(source_excitation, b).astype(np.int16)
 
-# write audio data as wav file
-wavfile.write('xsynthe.wav', fs, xsynthe)
-print('xsynthe')
+if __name__ == "__main__":
 
-# plot original wav data
-plot.subplot(3,1,1)
-plot.plot(x)
+    # read wav file
+    wavefile = "wav/sample02.wav"
+    fs, x = wavfile.read(wavefile) # fs: sampling rate, x: wave data
 
-# plot synthesized audio data
-plot.subplot(3,1,2)
-plot.plot(xsynthe)
+    # add white noise on target wav data
+    data = AddWhiteNoise(x)
 
-# plot origin & synthesized
-plot.subplot(3,1,3)
-plot.plot(x)
-plot.plot(xsynthe)
+    # multiplicate window func
+    frame_length = 1024
+    hop_length = 80
+    frames = librosa.util.frame(data, frame_length=frame_length, hop_length=hop_length).astype(np.float64).T
+    frames *= sptk.blackman(frame_length)
+
+    # estimate F0
+    f0 = sptk.swipe(data.astype(np.float64), fs=fs, hopsize=hop_length, min=25, max=2000)
+    generator = excite.ExcitePulse(fs, hop_length, False)
+    source_excitation = generator.gen(f0)
+
+    # params
+    order = 25
+    alpha = 0.41
+
+    # estimate mel cepstrum (MCEP)
+    mc = sptk.mcep(frames, order, alpha)
+    synthe = Synthesizer(MLSADF(order=order, alpha=alpha), hop_length)
+
+    # synthesize audio data from acoustic features
+    b = sptk.mc2b(mc, alpha)
+    xsynthe = synthe.synthesis(source_excitation, b).astype(np.int16)
+    # wav = pyworld.synthesize(f0*2.0, mc, ap, fs)
+
+    # write audio data as wav file
+    wavfile.write('sample.wav', fs, xsynthe)
+
