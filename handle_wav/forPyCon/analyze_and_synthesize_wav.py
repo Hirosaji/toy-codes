@@ -41,7 +41,7 @@ if __name__ == "__main__":
     _f0, timeaxis = pyworld.dio(data, fs, frame_period=frame_period)    # raw pitch F0
     f0 = pyworld.stonemask(data, _f0, timeaxis, fs)                     # pitch refined F0
     spectrogram = pyworld.cheaptrick(data, f0, timeaxis, fs)            # extract smoothed spectrogram
-    aperiodicity = pyworld.d4c(data, f0, timeaxis, fs)                     # extract aperiodicity
+    aperiodicity = pyworld.d4c(data, f0, timeaxis, fs)                  # extract aperiodicity
     mcep = pysptk.sp2mc(spectrogram, order=order, alpha=alpha)          # calculate mel-cepstraum
 
     ##############################
