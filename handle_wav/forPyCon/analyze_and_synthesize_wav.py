@@ -44,13 +44,13 @@ if __name__ == "__main__":
     aperiodicity = pyworld.d4c(data, f0, timeaxis, fs)                  # extract aperiodicity
     mcep = pysptk.sp2mc(spectrogram, order=order, alpha=alpha)          # calculate mel-cepstraum
 
-    ##############################
-    #                            #
-    #      Convert features      #
-    #             or             #
-    #     Make Learning Model    #
-    #                            #
-    ##############################
+    ###############################
+    #                             #
+    #      Convert features       #
+    #             or              #
+    #     Make Learning Model     #
+    #                             #
+    ###############################
 
     # convert mel-cepstrum back to power spectrum
     spectrogram = pysptk.mc2sp(mcep.astype(np.float64), alpha=alpha, fftlen=fftlen)
