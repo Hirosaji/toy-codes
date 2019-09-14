@@ -23,7 +23,7 @@ def comparisonPlot(raw, synthesized):
 if __name__ == "__main__":
 
     # load target wav file
-    src_path = "wav/sample01.wav"
+    src_path = "sample01.wav"
     fs, raw_wave = wavfile.read(src_path)
 
     # common params
@@ -59,8 +59,8 @@ if __name__ == "__main__":
     _wave = pyworld.synthesize(f0, spectrogram, aperiodicity, fs, frame_period=frame_period)
 
     # adjust sound volume
-    volume_weight = 0.00003
-    wave = _wave * volume_weight
+    volume_weight = len(data)
+    wave = _wave / volume_weight
 
     # write wave data as wav file
     wavfile.write('sample.wav', fs, wave)
