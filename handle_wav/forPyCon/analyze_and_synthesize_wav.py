@@ -33,11 +33,11 @@ if __name__ == "__main__":
     order = 24                                      # order of mel-cepstrum
 
     # collect features
-    _f0, timeaxis = pyworld.dio(data, fs, frame_period=frame_period)    # raw pitch F0
-    f0 = pyworld.stonemask(data, _f0, timeaxis, fs)                     # pitch refined F0
-    spectrogram = pyworld.cheaptrick(data, f0, timeaxis, fs)            # extract smoothed spectrogram
-    aperiodicity = pyworld.d4c(data, f0, timeaxis, fs)                  # extract aperiodicity
-    mcep = pysptk.sp2mc(spectrogram, order=order, alpha=alpha)          # calculate mel-cepstraum
+    _f0, timeaxis = pyworld.dio(data, fs, frame_period=frame_period)  # extract raw pitch F0
+    f0 = pyworld.stonemask(data, _f0, timeaxis, fs)                   # extract pitch refined F0
+    spectrum = pyworld.cheaptrick(data, f0, timeaxis, fs)             # extract smoothed spectrum
+    aperiodicity = pyworld.d4c(data, f0, timeaxis, fs)                # extract aperiodicity
+    mcep = pysptk.sp2mc(spectrum, order=order, alpha=alpha)           # calculate mel-cepstraum
 
     ###############################
     #                             #
@@ -47,11 +47,11 @@ if __name__ == "__main__":
     #                             #
     ###############################
 
-    # convert mel-cepstrum back to power spectrum
-    spectrogram = pysptk.mc2sp(mcep.astype(np.float64), alpha=alpha, fftlen=fftlen)
+    # convert mel-cepstrum back to spectrum
+    spectrum = pysptk.mc2sp(mcep.astype(np.float64), alpha=alpha, fftlen=fftlen)
 
     # synthesize wav data
-    _wave = pyworld.synthesize(f0, spectrogram, aperiodicity, fs, frame_period=frame_period)
+    _wave = pyworld.synthesize(f0, spectrum, aperiodicity, fs, frame_period=frame_period)
 
     # adjust sound volume
     volume_weight = len(data) / frame_period
