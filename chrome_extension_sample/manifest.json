@@ -1,0 +1,28 @@
+{
+    "name": "Sample",
+    "version": "1.0.0",
+    "manifest_version": 2,
+    "description": "Sample Chrome Extension",
+    "content_scripts": [
+        {
+            "matches": [
+                "http://*/*",
+                "https://*/*"
+            ],
+            "js": [
+                "d3.v5.min.js",
+                "content.js"
+            ],
+            "css": [
+                "content.css"
+            ]
+        }
+    ],
+    "browser_action": {
+        "default_icon": {
+            "19": "onigiri48.png"
+        },
+        "default_title": "Sample",
+        "default_popup": "popup.html"
+    }
+}

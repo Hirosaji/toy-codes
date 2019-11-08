@@ -1,0 +1,12 @@
+body {
+    min-width: 250px;
+}
+
+input{
+    font-size: 18px;
+    color: #555;
+    padding: 0px;
+    height: 40px;
+    grid-area: result;
+    width: 95%;
+}
